@@ -5,17 +5,12 @@
     :license: Simplified BSD License, see LICENSE.txt for more details."""
 
 from datetime import datetime
-from flask import current_app, flash, redirect, request, url_for
+from flask import current_app, flash, redirect, request, url_for, escape
 from flask_login import current_user, login_user, logout_user
-try: # Handle Python 2.x and Python 3.x
-    from urllib.parse import quote      # Python 3.x
-except ImportError:
-    from urllib import quote            # Python 2.x
 from .decorators import confirm_email_required, login_required
 from . import emails
 from . import signals
 from .translations import gettext as _
-
 
 def _call_or_get(function_or_property):
     return function_or_property() if callable(function_or_property) else function_or_property
@@ -635,7 +630,7 @@ def unauthenticated():
     flash(_("You must be signed in to access '%(url)s'.", url=url), 'error')
 
     # quote the fully qualified url
-    quoted_url = quote(url)
+    quoted_url = escape(url)
 
     # Redirect to USER_UNAUTHENTICATED_ENDPOINT
     user_manager = current_app.user_manager
