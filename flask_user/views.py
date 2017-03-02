@@ -5,12 +5,13 @@
     :license: Simplified BSD License, see LICENSE.txt for more details."""
 
 from datetime import datetime
-from flask import current_app, flash, redirect, request, url_for, escape
+from flask import current_app, flash, redirect, request, url_for
 from flask_login import current_user, login_user, logout_user
 from .decorators import confirm_email_required, login_required
 from . import emails
 from . import signals
 from .translations import gettext as _
+from werkzeug.urls import url_quote_plus
 
 def _call_or_get(function_or_property):
     return function_or_property() if callable(function_or_property) else function_or_property
@@ -19,7 +20,6 @@ def _call_or_get(function_or_property):
 def render(*args, **kwargs):
     user_manager = current_app.user_manager
     return user_manager.render_function(*args, **kwargs)
-
 
 def confirm_email(token):
     """ Verify email confirmation token and activate the user account."""
@@ -622,7 +622,12 @@ def unconfirmed():
     user_manager = current_app.user_manager
     return redirect(_endpoint_url(user_manager.unconfirmed_email_endpoint))
 
-
+def get_redirect_target():
+    for target in request.values.get('next'), request.referrer:
+        if not target:
+            continue
+        if is_safe_url(target):
+            return target
 def unauthenticated():
     """ Prepare a Flash message and redirect to USER_UNAUTHENTICATED_ENDPOINT"""
     # Prepare Flash message
@@ -630,7 +635,7 @@ def unauthenticated():
     flash(_("You must be signed in to access '%(url)s'.", url=url), 'error')
 
     # quote the fully qualified url
-    quoted_url = escape(url)
+    quoted_url = url_quote_plus(url)
 
     # Redirect to USER_UNAUTHENTICATED_ENDPOINT
     user_manager = current_app.user_manager
