@@ -448,6 +448,7 @@ def register():
         # Auto-login after register or redirect to login page
         next = request.args.get('next', _endpoint_url(user_manager.after_confirm_endpoint))
         if user_manager.auto_login_after_register:
+            reg_next = register_form.next.data or reg_next
             return _do_login_user(user, reg_next)                     # auto-login
         else:
             return redirect(url_for('user.login')+'?next='+reg_next)  # redirect to login page
