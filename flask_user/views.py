@@ -708,7 +708,7 @@ def _do_login_user(user, next, remember_me=False):
 
     # Check if user account has been disabled
     if not _call_or_get(user.is_active):
-        flash(_('Your account has not been enabled.'), 'error')
+        flash(_('Your account has not been enabled.'), 'success')
         return redirect(url_for('user.login'))
 
     # Check if user has a confirmed email address
